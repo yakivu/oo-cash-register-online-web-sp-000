@@ -1,39 +1,52 @@
-require 'pry'
+require "pry"
 class CashRegister
-  attr_accessor :total, :discount, :price, :items
+  attr_accessor :total, :discount, :items, :last_item
+  # @@last_item = 0
 
-  def initialize(discount = 0)
-    @total = 0
+  def initialize(discount=nil, total=0, items=[])
+    @total = total
     @discount = discount
-    @items = []
+    @items = items
   end
 
-  def add_item(item, price, quantity = 1)
-    @price = price
-    @total += price * quantity
-    if quantity > 1
-      counter = 0
-      while counter < quantity
-        @items << item
-        counter += 1
-      end
-    else
-      @items << item
-    end
+  def add_item(title, price, quantity=1)
+    # @@last_item = price * quantity
+    self.last_item = price * quantity
+    self.total += (price * quantity)
+    quantity.times { @items.push(title) }
   end
 
   def apply_discount
-    if @discount > 0
-      @to_take_off = (price * discount)/100
-      @total -= @to_take_off
-      return "After the discount, the total comes to $#{total}."
+    if @discount
+      perc_discount = self.discount / 100.0
+      self.total = self.total - (self.total * perc_discount).to_i
+      "After the discount, the total comes to $#{self.total}."
     else
-      return "There is no discount to apply."
+      "There is no discount to apply."
     end
   end
 
+  # STILL NEED TO MAKE IT self.total RETURN 0.0
   def void_last_transaction
-    @total -= @price
+    void_item = @items.pop(1)
+    self.total -= self.last_item
   end
 
 end
+
+new_register = CashRegister.new
+
+new_register.add_item("macbook air", 1000)
+p new_register.apply_discount
+p new_register.total
+
+# new_register.add_item("eggs", 1.99)
+# new_register.add_item("tomato", 1.76, 3)
+# new_register.add_item("apple", 0.99)
+
+# new_register.add_item("apple", 0.99)
+# new_register.add_item("tomato", 1.76)
+# new_register.void_last_transaction
+# p new_register.items
+# p new_register.total
+# ["eggs", "tomato", "tomato", "tomato"]
